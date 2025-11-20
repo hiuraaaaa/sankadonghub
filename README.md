@@ -1,6 +1,5 @@
-# sankadonghub
+# SankaDonghub
 
-sankadonghub adalah UI/Front End dari [Api Sanka](https://www.sankavollerei.com/anime) dimana user bisa nonton, streaming, & download donghua sub indo/subtitle indo secara online gratis gapake karcis cuyy...
 ---
 
 ### 💻 Source Code
