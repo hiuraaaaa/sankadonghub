@@ -1,20 +1,7 @@
 import sanka from "@utils/sanka";
 
 interface NewApiDetail {
-  title: string;
-  alter_title: string;
-  poster: string;
-  rating: string;
-  studio: string;
-  released: string;
-  duration: string;
-  episodes_count: string;
-  season: string;
-  type: string;
-  status: string;
-  genres: { name: string; slug: string; url: string }[];
-  synopsis: string;
-  episodes_list: { episode: string; slug: string; url: string }[];
+  [key: string]: any;
 }
 
 interface animeDetails {
@@ -45,35 +32,41 @@ export default async function animeInfoService(routeParams: {
 }) {
   const { animeId } = routeParams;
   const result = await sanka<NewApiDetail>(`/detail/${animeId}`);
-  const raw = result.data;
+  
+  const rawData = result.data || {};
+  let detail = rawData.data || rawData.anime_detail || rawData.donghua_detail || rawData;
+
+  if (!detail.title && rawData.title) {
+      detail = rawData;
+  }
 
   const mappedData: animeDetails = {
-      title: raw.title,
-      poster: raw.poster,
-      score: { value: raw.rating || "N/A", users: "" },
-      japanese: raw.alter_title,
-      synonyms: raw.alter_title,
-      english: raw.title,
-      status: raw.status || "Unknown",
-      type: raw.type,
+      title: detail.title || "???",
+      poster: detail.poster || "",
+      score: { value: detail.rating || "N/A", users: "" },
+      japanese: detail.alter_title || "",
+      synonyms: detail.alter_title || "",
+      english: detail.title || "",
+      status: detail.status || "Unknown",
+      type: detail.type || "TV",
       source: "Original",
-      duration: raw.duration,
-      episodes: parseInt(raw.episodes_count) || null,
-      season: raw.season,
-      studios: raw.studio,
+      duration: detail.duration || "-",
+      episodes: parseInt(detail.episodes_count) || null,
+      season: detail.season || "-",
+      studios: detail.studio || "-",
       producers: "",
-      aired: raw.released,
+      aired: detail.released || "-",
       trailer: "",
       batchList: [],
       synopsis: {
-          paragraphs: [raw.synopsis],
+          paragraphs: [detail.synopsis || "No synopsis available."],
           connections: []
       },
-      genreList: (raw.genres || []).map(g => ({
+      genreList: (detail.genres || []).map((g: any) => ({
           title: g.name,
           genreId: g.slug
       })),
-      episodeList: (raw.episodes_list || []).map(e => {
+      episodeList: (detail.episodes_list || []).map((e: any) => {
           const match = e.episode.match(/Episode\s+(\d+(\.\d+)?)/i);
           
           let displayTitle = e.episode; 
