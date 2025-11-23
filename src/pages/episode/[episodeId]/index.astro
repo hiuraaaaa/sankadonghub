@@ -93,5 +93,33 @@ const title = ok ? `Nonton Anime ${data.title} - ${siteName}` : `Error - ${siteN
         </Sidebar>
       </Sesepuh>
     </Layout>
+    <script is:inline define:vars={{ 
+      episodeTitle: data.title, 
+      poster: data.poster, 
+      href: Astro.url.pathname,
+      episodeLabel: data.title 
+    }}>
+      const historyKey = "sankadonghub_history";
+      try {
+        const currentHistory = JSON.parse(localStorage.getItem(historyKey) || "[]");
+        const newEntry = {
+          title: episodeTitle,
+          poster: poster,
+          href: href,
+          episode: episodeLabel.replace(/.*(Episode\s+\d+).*/i, "$1") || "Tonton", // Ambil string "Episode X"
+          timestamp: new Date().getTime(),
+        };
+        const filteredHistory = currentHistory.filter(item => item.href !== href);
+        filteredHistory.unshift(newEntry);
+        
+        if (filteredHistory.length > 20) {
+          filteredHistory.pop();
+        }
+
+        localStorage.setItem(historyKey, JSON.stringify(filteredHistory));
+      } catch (e) {
+        console.error("Gagal menyimpan history", e);
+      }
+    </script>
   )
 }
